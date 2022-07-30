@@ -337,6 +337,7 @@ android_library {
         "libGoogleFeed",
         "SettingsLib",
         "org.lineageos.platform",
+        "bcsmartspace-google",
     ],
     manifest: "AndroidManifest-common.xml",
     sdk_version: "current",
