@@ -120,6 +120,8 @@ public class SettingsHomescreen extends CollapsingToolbarBaseActivity
             case Utilities.KEY_HOTSEAT_QSB_OPACITY:
             case Utilities.KEY_HOTSEAT_QSB_STROKE_WIDTH:
                 LauncherAppState.INSTANCE.executeIfCreated(app -> app.setNeedsRestart());
+            case Utilities.KEY_SMARTSPACE:
+                LauncherAppState.getInstance(this).setNeedsRestart();
                 break;
             default:
                 break;
