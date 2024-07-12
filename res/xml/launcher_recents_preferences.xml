@@ -27,7 +27,7 @@
             android:title="@string/background_opacity_title"
             android:persistent="true"
             android:max="100"
-            android:min="0"
+            android:min="40"
             settings:units="%"
             android:defaultValue="40" />
 
