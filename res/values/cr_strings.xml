@@ -162,10 +162,12 @@
     <string name="allow_wallpaper_zooming_summary">Zoom in or out the wallpaper when using drawer or recent apps</string>
 
     <!-- Homescreen Statusbar -->
-    <string name="show_statusbar_title">Status Bar</string>
+    <string name="show_statusbar_title">Show status bar</string>
+    <string name="show_statusbar_title_summary">Show/hide the status bar when viewing the home screen</string>
 
     <!-- Top shadow -->
-    <string name="show_top_shadow">Top shadow</string>
+    <string name="show_top_shadow">Enable status bar shadow</string>
+    <string name="show_top_shadow_summary">Add a translucent shadow to the status bar</string>
 
     <!-- Memory info -->
     <string name="meminfo_text">%1$s available | %2$s</string>
@@ -219,4 +221,7 @@
     <!-- Circle to Search -->
     <string name="pref_allow_cts_title">Circle to Search</string>
     <string name="pref_allow_cts_summary">Touch and hold the Home button or the navigation handle to search using the content on your screen.</string>
+
+    <!-- Branding -->
+    <string name="derp_branding">flux.</string>
 </resources>
