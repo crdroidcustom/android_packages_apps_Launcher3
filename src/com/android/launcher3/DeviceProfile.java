@@ -935,8 +935,7 @@ public class DeviceProfile {
                     - hotseatBorderSpace * numShownHotseatIcons
                     - iconExtraSpacePx;
         } else {
-            return getIconToIconWidthForColumns(mHotseatColumnSpan) - iconExtraSpacePx
-                    - hotseatBorderSpace;
+            return getIconToIconWidthForColumns(mHotseatColumnSpan) - iconExtraSpacePx;
         }
     }
 
@@ -1005,8 +1004,6 @@ public class DeviceProfile {
      * necessary.
      */
     public void recalculateHotseatWidthAndBorderSpace() {
-        if (!(mIsScalableGrid || (isTaskbarPresent && !isLandscape))) return;
-
         updateHotseatWidthAndBorderSpace(inv.numColumns);
         int numWorkspaceColumns = getPanelCount() * inv.numColumns;
         if (isTwoPanels) {
