@@ -31,12 +31,6 @@
             settings:units="%"
             android:defaultValue="40" />
 
-        <SwitchPreferenceCompat
-            android:key="pref_recents_meminfo"
-            android:title="@string/recents_meminfo_title"
-            android:defaultValue="false"
-            android:persistent="true"
-            launcher:iconSpaceReserved="false" />
     </PreferenceCategory>
 
     <PreferenceCategory
