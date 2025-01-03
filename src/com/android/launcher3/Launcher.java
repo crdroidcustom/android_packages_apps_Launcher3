@@ -218,7 +218,6 @@ import com.android.launcher3.pm.PinRequestHelper;
 import com.android.launcher3.popup.ArrowPopup;
 import com.android.launcher3.popup.PopupDataProvider;
 import com.android.launcher3.popup.SystemShortcut;
-import com.android.launcher3.quickspace.QuickSpaceView;
 import com.android.launcher3.statemanager.StateManager;
 import com.android.launcher3.statemanager.StateManager.StateHandler;
 import com.android.launcher3.statemanager.StatefulActivity;
@@ -424,9 +423,6 @@ public class Launcher extends StatefulActivity<LauncherState>
 
     private final SettingsCache.OnChangeListener mNaturalScrollingChangedListener =
             enabled -> mIsNaturalScrollingEnabled = enabled;
-
-    // QuickSpace
-    private QuickSpaceView mQuickSpace;
 
     private boolean mWasImeOpened = false;
 
@@ -1095,9 +1091,6 @@ public class Launcher extends StatefulActivity<LauncherState>
         } else {
             mOverlayManager.onActivityStopped();
         }
-        if (mQuickSpace != null) {
-            mQuickSpace.onPause();
-        }
         hideKeyboard();
         logStopAndResume(false /* isResume */);
         mAppWidgetHolder.setActivityStarted(false);
@@ -1306,10 +1299,6 @@ public class Launcher extends StatefulActivity<LauncherState>
         TraceHelper.INSTANCE.beginSection(ON_RESUME_EVT);
         super.onResume();
 
-        if (mQuickSpace != null) {
-            mQuickSpace.onResume();
-        }
-
         if (mDeferOverlayCallbacks) {
             scheduleDeferredCheck();
         } else {
@@ -1334,9 +1323,6 @@ public class Launcher extends StatefulActivity<LauncherState>
 
         if (!mDeferOverlayCallbacks) {
             mOverlayManager.onActivityPaused();
-        }
-        if (mQuickSpace != null) {
-            mQuickSpace.onPause();
         }
         mAppWidgetHolder.setActivityResumed(false);
     }
@@ -1406,7 +1392,9 @@ public class Launcher extends StatefulActivity<LauncherState>
         // Until the workspace is bound, ensure that we keep the wallpaper offset locked to the
         // default state, otherwise we will update to the wrong offsets in RTL
         mWorkspace.lockWallpaperToDefaultPage();
-        mWorkspace.bindAndInitFirstWorkspaceScreen();
+        if (!enableSmartspaceRemovalToggle()) {
+            mWorkspace.bindAndInitFirstWorkspaceScreen();
+        }
         mDragController.addDragListener(mWorkspace);
 
         // Get the search/delete/uninstall bar
@@ -1419,9 +1407,6 @@ public class Launcher extends StatefulActivity<LauncherState>
 
         // Setup Scrim
         mScrimView = findViewById(R.id.scrim_view);
-
-        // QuickSpace
-        mQuickSpace = findViewById(R.id.reserved_container_workspace);
 
         // Setup the drag controller (drop targets have to be added in reverse order in priority)
         mDropTargetBar.setup(mDragController);
@@ -1866,10 +1851,6 @@ public class Launcher extends StatefulActivity<LauncherState>
         // changes while launcher is still loading.
         getRootView().getViewTreeObserver().removeOnPreDrawListener(mOnInitialBindListener);
         mOverlayManager.onActivityDestroyed();
-        
-        if (mQuickSpace != null) {
-            mQuickSpace.onDestroy();
-        }
     }
 
     public LauncherAccessibilityDelegate getAccessibilityDelegate() {
