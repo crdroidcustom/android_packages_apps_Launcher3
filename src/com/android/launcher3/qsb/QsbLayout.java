@@ -148,13 +148,27 @@ public class QsbLayout extends FrameLayout {
     }
 
     private void setupLensIcon() {
+        // Try explicit intent first
         Intent lensIntent = new Intent();
-        lensIntent.setComponent(new ComponentName(Utilities.GSA_PACKAGE,
-             Utilities.LENS_ACTIVITY));
+        lensIntent.setComponent(new ComponentName(Utilities.GSA_PACKAGE, Utilities.LENS_ACTIVITY));
+        lensIntent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+    
         if (lensIntent.resolveActivity(mContext.getPackageManager()) != null) {
             lensIcon.setOnClickListener(view -> {
-                lensIntent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
-                mContext.startActivity(lensIntent);
+                try {
+                    mContext.startActivity(lensIntent);
+                } catch (SecurityException e) {
+                    // Fallback to implicit intent
+                    Intent fallbackIntent = new Intent(Intent.ACTION_VIEW);
+                    fallbackIntent.setData(Uri.parse("https://lens.google.com"));
+                    fallbackIntent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+                    if (fallbackIntent.resolveActivity(mContext.getPackageManager()) != null) {
+                        mContext.startActivity(fallbackIntent);
+                    } else {
+                        // Hide the icon if no fallback is available
+                        lensIcon.setVisibility(View.GONE);
+                    }
+                }
             });
         } else {
             lensIcon.setVisibility(View.GONE);
