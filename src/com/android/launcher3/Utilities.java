@@ -1112,11 +1112,13 @@ public final class Utilities {
    }
 
     public static int getRecentsOpacity(Context context) {
-        return 100;
+        SharedPreferences prefs = LauncherPrefs.getPrefs(context.getApplicationContext());
+        return prefs.getInt(KEY_RECENTS_OPACITY, 100);
     }
 
     public static int getAllAppsOpacity(Context context) {
-        return 100;
+        SharedPreferences prefs = LauncherPrefs.getPrefs(context.getApplicationContext());
+        return prefs.getInt(KEY_APP_DRAWER_OPACITY, 100);
     }
 
     public static int getBlurRadius(Context context) {
