@@ -59,20 +59,20 @@ public class QuickspaceController implements OmniJawsClient.OmniJawsObserver,
     private OmniJawsClient.WeatherInfo mWeatherInfo;
     private Drawable mConditionImage;
     private boolean mOmniRegistered = false;
-    private boolean mMediaRegistered = false;
 
     private static final long PSA_UPDATE_DELAY_MS = 3 * 60 * 1000;
 
     private final Handler mHandler = MAIN_EXECUTOR.getHandler();
+    private final Runnable mPsaRunnable;
 
     private final Runnable mOnDataUpdatedRunnable = new Runnable() {
-            @Override
-            public void run() {
-                for (OnDataListener list : new ArrayList<>(mListeners)) {
-                    list.onDataUpdated();
-                }
+        @Override
+        public void run() {
+            for (OnDataListener l : new ArrayList<>(mListeners)) {
+                l.onDataUpdated();
             }
-        };
+        }
+    };
 
     private Runnable mWeatherRunnable = new Runnable() {
             @Override
@@ -84,20 +84,9 @@ public class QuickspaceController implements OmniJawsClient.OmniJawsObserver,
                     if (mWeatherInfo != null) {
                         mConditionImage = mWeatherClient.getWeatherConditionImage(mWeatherInfo.conditionCode);
                     }
-                    notifyListeners();
                 } catch(Exception e) {
                     // Do nothing
                 }
-            }
-        };
-
-    private Runnable mPsaRunnable = new Runnable() {
-            @Override
-            public void run() {
-                mHandler.removeCallbacks(this);
-                if (mEventsController == null) return;
-                mEventsController.updatePsonality();
-                mHandler.postDelayed(this, PSA_UPDATE_DELAY_MS);
                 notifyListeners();
             }
         };
@@ -110,6 +99,17 @@ public class QuickspaceController implements OmniJawsClient.OmniJawsObserver,
         mContext = context;
         mConditionMap = initializeConditionMap();
         mEventsController = new QuickEventsController(context);
+
+        mPsaRunnable = new Runnable() {
+            @Override
+            public void run() {
+                if (mEventsController != null) {
+                    mEventsController.updatePsonality();
+                    notifyListeners();
+                }
+                mHandler.postDelayed(this, PSA_UPDATE_DELAY_MS);
+            }
+        };
     }
 
     private void addWeatherProvider() {
@@ -132,7 +132,7 @@ public class QuickspaceController implements OmniJawsClient.OmniJawsObserver,
             addWeatherProvider();
             registerMediaController();
             mEventsController.initQuickEvents();
-            updatePSAevent();
+            mHandler.post(mPsaRunnable);
         }
         listener.onDataUpdated();
     }
@@ -241,26 +241,21 @@ public class QuickspaceController implements OmniJawsClient.OmniJawsObserver,
 
     public void onPause() {
         unregisterMediaController();
-        mHandler.removeCallbacks(mPsaRunnable);
-        mHandler.removeCallbacks(mWeatherRunnable);
-        mHandler.removeCallbacks(mOnDataUpdatedRunnable);
     }
 
     public void onResume() {
         registerMediaController();
         updateMediaController();
-        updatePSAevent();
         notifyListeners();
     }
 
     public void onDestroy() {
-        unregisterMediaController();
-        mHandler.removeCallbacks(mPsaRunnable);
-        mHandler.removeCallbacks(mWeatherRunnable);
-        mHandler.removeCallbacks(mOnDataUpdatedRunnable);
         for (OnDataListener listener : new ArrayList<>(mListeners)) {
             removeListener(listener);
         }
+        mHandler.removeCallbacks(mPsaRunnable);
+        mHandler.removeCallbacks(mWeatherRunnable);
+        mHandler.removeCallbacks(mOnDataUpdatedRunnable);
     }
 
     @Override
@@ -283,31 +278,20 @@ public class QuickspaceController implements OmniJawsClient.OmniJawsObserver,
         queryAndUpdateWeather();
     }
 
-    private void updatePSAevent() {
-        mHandler.removeCallbacks(mPsaRunnable);
-        mHandler.post(mPsaRunnable);
-    }
-
     private void queryAndUpdateWeather() {
-        mHandler.removeCallbacks(mWeatherRunnable);
         mHandler.post(mWeatherRunnable);
     }
 
     public void notifyListeners() {
-        mHandler.removeCallbacks(mOnDataUpdatedRunnable);
         mHandler.post(mOnDataUpdatedRunnable);
     }
 
     private void registerMediaController() {
-        if (mMediaRegistered) return;
         MSMHProxy.INSTANCE(mContext).addMediaMetadataListener(this);
-        mMediaRegistered = true;
     }
 
     private void unregisterMediaController() {
-        if (!mMediaRegistered) return;
         MSMHProxy.INSTANCE(mContext).removeMediaMetadataListener(this);
-        mMediaRegistered = false;
     }
 
     private boolean updateMediaController() {
